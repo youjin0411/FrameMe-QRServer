@@ -163,6 +163,40 @@ function saveImage(base64Data) {
   return filePath;
 }
 
+app.get('/images', (req, res) => {
+  connection.query('SELECT image1, image2, image3, image4 FROM photos', (error, results) => {
+    if (error) {
+      console.error('Error fetching image URLs:', error);
+      res.status(500).json({ message: 'Error fetching image URLs' });
+    } else {
+      res.status(200).json(results);
+    }
+  });
+});
+
+// 이미지 URL을 가져오는 API 엔드포인트로 요청을 보냅니다.
+const fetchImageURLs = async () => {
+  try {
+    const response = await axios.get('http://localhost:3001/images');
+    const imagePaths = response.data;
+
+    // 이미지 파일의 경로에서 URL을 생성합니다.
+    const imageURLs = imagePaths.map((pathObj) => {
+      return {
+        image1: `http://localhost:3001/${pathObj.image1}`,
+        image2: `http://localhost:3001/${pathObj.image2}`,
+        image3: `http://localhost:3001/${pathObj.image3}`,
+        image4: `http://localhost:3001/${pathObj.image4}`,
+      };
+    });
+
+    setImageURLs(imageURLs);
+  } catch (error) {
+    console.error('Error fetching image URLs:', error);
+  }
+};
+
+
 // 서버 시작
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
