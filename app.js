@@ -1,5 +1,7 @@
 const express = require('express');
-const mysql = require('mysql')
+const mysql = require('mysql');
+const cors = require('cors'); // cors 미들웨어 추가
+
 const app = express();
 const port = 3001;
 // create database frameme;
@@ -13,7 +15,14 @@ const port = 3001;
 //   );
   
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // 요청의 크기 제한을 10MB로 설정
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+);
 
 const connection = mysql.createConnection({
     host: 'localhost',
