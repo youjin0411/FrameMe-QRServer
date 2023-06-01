@@ -68,6 +68,16 @@
 //   console.log(`Server is running on port ${port}`);
 // });
 
+// create database frameme;
+// use frameme;''/
+// mysql> CREATE TABLE photos (
+//     ->   id INT AUTO_INCREMENT PRIMARY KEY,
+//     ->   image1 VARCHAR(255),
+//     ->   image2 VARCHAR(255),
+//     ->   image3 VARCHAR(255),
+//     ->   image4 VARCHAR(255)
+//     -> );
+
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
