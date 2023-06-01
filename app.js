@@ -69,7 +69,7 @@
 // });
 
 // create database frameme;
-// use frameme;''/
+// use frameme;
 // mysql> CREATE TABLE photos (
 //     ->   id INT AUTO_INCREMENT PRIMARY KEY,
 //     ->   image1 VARCHAR(255),
