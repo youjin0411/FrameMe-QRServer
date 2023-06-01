@@ -83,11 +83,13 @@ const mysql = require('mysql');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const port = 3001;
 
 app.use(express.json({ limit: '10mb' }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(
   cors({
@@ -131,16 +133,16 @@ app.post('/upload', async (req, res) => {
       const image3 = `image${i + 3}`;
       const image4 = `image${i + 4}`;
 
-      // 이미지 파일을 서버의 파일 시스템에 저장
-      const image1Path = saveImage(photos[i]);
-      const image2Path = saveImage(photos[i + 1]);
-      const image3Path = saveImage(photos[i + 2]);
-      const image4Path = saveImage(photos[i + 3]);
+      // 이미지 파일을 서버의 파일 시스템에 저장하고 URL 생성
+      const image1Url = saveImage(photos[i]);
+      const image2Url = saveImage(photos[i + 1]);
+      const image3Url = saveImage(photos[i + 2]);
+      const image4Url = saveImage(photos[i + 3]);
 
-      // 데이터베이스에 이미지 파일의 경로 삽입
+      // 데이터베이스에 이미지 파일의 URL 삽입
       await connection.query(
         'INSERT INTO photos (image1, image2, image3, image4) VALUES (?, ?, ?, ?)',
-        [image1Path, image2Path, image3Path, image4Path]
+        [image1Url, image2Url, image3Url, image4Url]
       );
     }
 
@@ -153,49 +155,38 @@ app.post('/upload', async (req, res) => {
 
 // 이미지 파일을 서버의 파일 시스템에 저장하는 함수
 function saveImage(base64Data) {
-  const fileName = `${Date.now()}.png`;
+  const fileName = uuidv4() + '.png';
   const filePath = path.join(uploadsFolder, fileName);
+  const fileUrl = `http://localhost:3001/uploads/${fileName}`; // 이미지 URL 생성
 
   // base64 데이터를 파일로 변환하여 저장
-  fs.writeFileSync(filePath, base64Data, 'base64');
+  const imageData = base64Data.replace(/^data:image\/png;base64,/, '');
+  fs.writeFileSync(filePath, imageData, 'base64');
 
-  // 저장된 파일의 경로 반환
-  return filePath;
+  // 저장된 파일의 URL 반환
+  return fileUrl;
 }
 
+// 이미지 URL을 가져오는 API 엔드포인트로 요청을 보냅니다.
 app.get('/images', (req, res) => {
   connection.query('SELECT image1, image2, image3, image4 FROM photos', (error, results) => {
     if (error) {
-      console.error('Error fetching image URLs:', error);
-      res.status(500).json({ message: 'Error fetching image URLs' });
+      console.error('Error fetching image data:', error);
+      res.status(500).json({ message: 'Error fetching image data' });
     } else {
-      res.status(200).json(results);
+      const imageUrls = results.map((pathObj) => {
+        return {
+          image1: `${pathObj.image1}`,
+          image2: `${pathObj.image2}`,
+          image3: `${pathObj.image3}`,
+          image4: `${pathObj.image4}`,
+        };
+      });
+
+      res.status(200).json(imageUrls);
     }
   });
 });
-
-// 이미지 URL을 가져오는 API 엔드포인트로 요청을 보냅니다.
-const fetchImageURLs = async () => {
-  try {
-    const response = await axios.get('http://localhost:3001/images');
-    const imagePaths = response.data;
-
-    // 이미지 파일의 경로에서 URL을 생성합니다.
-    const imageURLs = imagePaths.map((pathObj) => {
-      return {
-        image1: `http://localhost:3001/${pathObj.image1}`,
-        image2: `http://localhost:3001/${pathObj.image2}`,
-        image3: `http://localhost:3001/${pathObj.image3}`,
-        image4: `http://localhost:3001/${pathObj.image4}`,
-      };
-    });
-
-    setImageURLs(imageURLs);
-  } catch (error) {
-    console.error('Error fetching image URLs:', error);
-  }
-};
-
 
 // 서버 시작
 app.listen(port, () => {
