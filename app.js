@@ -35,7 +35,7 @@ app.post('/upload', upload.single('image'), async(req, res) => {
 
         fs.renameSync(req.file.path, imagePath);
 
-        const qrCodeData = `https://port-0-framemeserver-7xwyjq992llisq9g9j.sel4.cloudtype.app/${filename}`;
+        const qrCodeData = `http://localhost:3001/download/${filename}`;
         const qrCodeOptions = {
             type: 'png',
             quality: 0.92,
