@@ -41,13 +41,14 @@ app.post('/upload', upload.single('image'), async(req, res) => {
             width: 256,
             height: 256,
         };
-        const qrCodePath = `uploads/${Date.now()}_qrcode.png`;
+        const qrCodePath2 = `${Date.now()}_qrcode.png`;
+        const qrCodePath = `uploads/${qrCodePath2}`;
         await QRCode.toFile(qrCodePath, qrCodeData, qrCodeOptions);
-        const qrimgLink = `https://port-0-framemeserver-7xwyjq992llisq9g9j.sel4.cloudtype.app/${qrCodePath}`;
+        const qrimgLink = `https://port-0-framemeserver-7xwyjq992llisq9g9j.sel4.cloudtype.app/download/${qrCodePath2}`;
         res.json({
             downloadLink: qrCodeData,
             qrimgLink: qrimgLink
-        });
+          });
     } catch (error) {
         console.error('Error uploading image:', error);
         res.status(500).json({ error: 'Internal Server Error' });
