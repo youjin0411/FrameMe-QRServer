@@ -45,10 +45,7 @@ app.post('/upload', upload.single('image'), async(req, res) => {
         const qrCodePath = `uploads/${qrCodePath2}`;
         await QRCode.toFile(qrCodePath, qrCodeData, qrCodeOptions);
         const qrimgLink = `https://port-0-framemeserver-7xwyjq992llisq9g9j.sel4.cloudtype.app/download/${qrCodePath2}`;
-        res.json({
-            downloadLink: qrCodeData,
-            qrimgLinkprint: qrimgLink
-          });
+        res.json({ downloadLink: qrCodeData, qrimgLinkprint: qrimgLink })
     } catch (error) {
         console.error('Error uploading image:', error);
         res.status(500).json({ error: 'Internal Server Error' });
