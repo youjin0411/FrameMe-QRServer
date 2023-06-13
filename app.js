@@ -47,7 +47,7 @@ app.post('/upload', upload.single('image'), async(req, res) => {
         const qrimgLink = `https://port-0-framemeserver-7xwyjq992llisq9g9j.sel4.cloudtype.app/download/${qrCodePath2}`;
         res.json({
             downloadLink: qrCodeData,
-            qrimgLink: qrimgLink
+            qrimgLinkprint: qrimgLink
           });
     } catch (error) {
         console.error('Error uploading image:', error);
