@@ -13,6 +13,7 @@ const upload = multer({
 const app = express();
 
 app.use(express.json());
+app.use(express.static('uploads'));
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
@@ -29,12 +30,10 @@ app.post('/upload', upload.single('image'), async(req, res) => {
             res.status(400).json({ error: 'No image uploaded' });
             return;
         }
-
         const filename = `${Date.now()}_${req.file.originalname}.png`;
         const imagePath = `uploads/${filename}`;
 
         fs.renameSync(req.file.path, imagePath);
-
         const qrCodeData = `https://port-0-framemeserver-7xwyjq992llisq9g9j.sel4.cloudtype.app/download/${filename}`;
         const qrCodeOptions = {
             type: 'png',
@@ -44,8 +43,10 @@ app.post('/upload', upload.single('image'), async(req, res) => {
         };
         const qrCodePath = `uploads/${Date.now()}_qrcode.png`;
         await QRCode.toFile(qrCodePath, qrCodeData, qrCodeOptions);
+        const qrimgLink = `https://port-0-framemeserver-7xwyjq992llisq9g9j.sel4.cloudtype.app/${qrCodePath}`;
         res.json({
             downloadLink: qrCodeData,
+            qrimgLink: qrimgLink
         });
     } catch (error) {
         console.error('Error uploading image:', error);
