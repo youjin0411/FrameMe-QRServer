@@ -30,7 +30,15 @@ var db;
 MongoClient.connect(url, { useUnifiedTopology: true }, function(에러, client) {
     if (에러) console.log(에러);
     db = client.db('gallery'); //데이터베이스 명
-    console.log('연결되었습니다!')
+    console.log('연결되었습니다!');
+    // 컬렉션 데이터 삭제
+    db.collection("gallery").remove({})
+        .then(result => {
+            console.log('모든 데이터 삭제 완료');
+        })
+        .catch(error => {
+            console.error('데이터 삭제 오류:', error);
+        });
     app.listen(3001, () => {
         console.log('Server is running on port 3001');
     });
