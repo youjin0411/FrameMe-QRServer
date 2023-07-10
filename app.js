@@ -23,6 +23,19 @@ app.use((req, res, next) => {
     next();
 });
 
+const MongoClient = require("mongodb").MongoClient;
+const url = 'mongodb+srv://admin:1234@cluster0.eweii4t.mongodb.net/?retryWrites=true&w=majority';
+
+var db;
+MongoClient.connect(url, { useUnifiedTopology: true }, function(에러, client) {
+    if (에러) console.log(에러);
+    db = client.db('gallery'); //데이터베이스 명
+    console.log('연결되었습니다!')
+    app.listen(3001, () => {
+        console.log('Server is running on port 3001');
+    });
+});
+
 app.post('/upload', upload.single('image'), async(req, res) => {
     try {
         if (!req.file) {
@@ -64,27 +77,28 @@ app.get('/download/:filename', (req, res) => {
     });
 });
 
-app.get('/allPhotos', (req, res) => {
-  try {
-    fs.readdir('uploads', (err, files) => {
-      if (err) {
-        console.error('Error reading directory:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-        return;
-      }
-      const photoLinks = files.map((file) => ({
-        name: file,
-        link: `https://port-0-framemeserver-7xwyjq992llisq9g9j.sel4.cloudtype.app/download/${file}`,
-      }));
-      res.json({ photos: photoLinks });
-    });
-  } catch (error) {
-    console.error('Error retrieving photos:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+app.post('/insert', (req, res) => {
+    const { name, today, time, qrCodeImage, frameimage } = req.body;
+    db.collection("gallery").insertOne({ name: name, day: today, time: time, qr: qrCodeImage, frame: frameimage },
+        (error, result) => {
+            if (error) {
+                console.error('데이터 삽입 오류:', error);
+                res.status(500).json({ error: 'Internal Server Error' });
+                return;
+            }
+            console.log('데이터 삽입 완료');
+            res.end();
+        }
+    );
 });
 
-
-app.listen(3001, () => {
-    console.log('Server is running on port 3001');
+app.get("/select", (req, res) => {
+    db.collection("gallery").find({}).toArray(function(error, result) {
+        if (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Internal Server Error' });
+            return;
+        }
+        res.send(result);
+    });
 });
