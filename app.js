@@ -99,6 +99,7 @@ app.get("/select", (req, res) => {
             res.status(500).json({ error: 'Internal Server Error' });
             return;
         }
+        console.log(result)
         res.send(result);
     });
 });
