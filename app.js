@@ -69,7 +69,7 @@ app.post('/upload', upload.single('image'), async(req, res) => {
 app.get('/download/:filename', (req, res) => {
     const { filename } = req.params;
     const filePath = `uploads/${filename}`;
-    res.download(filePath, (err) => {
+    res.download(filePath, filename, (err) => {
         if (err) {
             console.error('Error downloading file:', err);
             res.status(500).json({ error: 'Internal Server Error' });
