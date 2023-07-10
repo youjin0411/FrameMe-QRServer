@@ -64,6 +64,27 @@ app.get('/download/:filename', (req, res) => {
     });
 });
 
+app.get('/allPhotos', (req, res) => {
+  try {
+    fs.readdir('uploads', (err, files) => {
+      if (err) {
+        console.error('Error reading directory:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+        return;
+      }
+      const photoLinks = files.map((file) => ({
+        name: file,
+        link: `https://port-0-framemeserver-7xwyjq992llisq9g9j.sel4.cloudtype.app/download/${file}`,
+      }));
+      res.json({ photos: photoLinks });
+    });
+  } catch (error) {
+    console.error('Error retrieving photos:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 app.listen(3001, () => {
     console.log('Server is running on port 3001');
 });
